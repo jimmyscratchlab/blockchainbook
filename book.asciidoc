@@ -6,6 +6,6 @@
 
 include::ch01.asciidoc[]
 
-include::ch02.asciidoc[]
+include::私鑰、公鑰與地址.asciidoc[]
 
 include::附錄.asciidoc[]
