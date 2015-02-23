@@ -1,0 +1,61 @@
+== 私鑰、公鑰與地址
+
+=== 私鑰
+
+私鑰用於解除鎖定在特定地址的幣值。通常是由隨機算法生成的，是一個256位元、32位元組的巨大隨機整數。大小介於0x01 and 0xFFFF FFFF FFFF FFFF FFFF FFFF FFFF FFFE BAAE DCE6 AF48 A03B BFD2 5E8C D036 4140之間的數，都可以認為是一個合法的私鑰
+
+==== 私鑰格式
+ 
+* https://bitcoin.org/en/developer-guide#wallet-import-format-wif[WIF (Wallet Import Format)]
+
+* https://bitcoin.org/en/developer-guide#mini-private-key-format[Mini Private Key Format]
+
+==== 初始私鑰物件
+[source,javascript]
+----
+var privateKey = new PrivateKey();
+// Creates a private key from a hexa encoded number
+var privateKey2 = new PrivateKey('b221d9dbb083a7f33428d7c2a3c3198ae925614d70210e28716ccaa7cd4ddb79');
+----
+=== 公鑰
+
+公鑰與私鑰是相對應的，一把私鑰可以推出唯一的公鑰，但公鑰卻無法反推私鑰。
+
+公鑰有兩種形式：壓縮與非壓縮。兩種公鑰的首個位元組為識別位，以0x04開頭為非壓縮(65位元組)，以0x02/0x03開頭為壓縮公鑰(33位元組)，0x02/0x03的選取由右側Y開方後的奇偶決定。
+
+壓縮形式可以減小Tx/Block的體積，每個Tx Input減少32位元組。
+
+==== 初始公鑰物件
+[source,javascript]
+----
+var privateKey = new PrivateKey();
+// from a private key
+var publicKey = new PublicKey(privateKey);
+// from a der hex encoded string
+var publicKey2 = new PublicKey('02a1633cafcc01ebfb6d78e39f687a1f0995c62fc95f51ead10a02ee0be551b5dc');
+----
+
+=== 地址
+
+由於公鑰太長了(130字元或66字元),不方便人們交易,於是改以更簡短的比特幣地址，地址長度為25位元組，轉為base58編碼後，為34或35個字元。 base58是類似base64的編碼，但去掉了易引起視覺混淆的字符，又在地址末尾添加了4個字節校驗位，保障在人們交換個別字符錯誤時，也能夠因地址校驗失敗而避免錯誤操作。
+
+==== 創建一個地址
+[source,javascript]
+----
+var address = privateKey.toAddress();
+----
+==== 創建多方簽名(Multisig)地址
+[source,javascript]
+----
+// Build a 2-of-3 address from public keys
+var P2SHAddress = new bitcore.Address([publicKey1, publicKey2, publicKey3], 2);
+----
+
+==== 創建腦錢包地址
+[source,javascript]
+----
+var dataBuffer = new Buffer(someString);
+var hash = bitcore.crypto.Hash.sha256sha256(dataBuffer).toString('hex');
+var privateKey = bitcore.PrivateKey.fromString(hash);
+----
+
